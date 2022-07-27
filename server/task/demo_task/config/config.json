@@ -1,0 +1,13 @@
+{
+    "db": "postgresql://root:thi168168@220.130.185.36:5432/kh_its_1398_demo",
+    "db_dev": "postgresql://root:thi168168@localhost:5432/kh_its_1398",
+    "db_dev1": "postgresql://root:thi168168@220.130.185.36:5432/kh_its_1398",
+    "db_dev2": "mysql+pymysql://thia01:thiits@localhost:3306/thi_db_1398",
+    "db_test": "mysql+pymysql://thia01:thiits@220.130.185.36:3306/dev_1398",
+    "iis_api_url": "http://223.200.72.159/cptapi/",
+    "iis_api_url_test": "http://tpeits-1.pjm.iisigroup.com/cptapi/",
+    "iis_api_header": {
+        "accept": "*/*",
+        "Authorization": "FFFFFFFF-FFFF-FFFF-FFFF-FFFFFFFFFFFF"
+    }
+}
