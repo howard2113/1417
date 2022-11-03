@@ -27,7 +27,7 @@ class ProductionConfig(Config):
 class DevelopmentConfig(Config):
     DEBUG = True
     # SQLALCHEMY_DATABASE_URI = "mysql+pymysql://thia01:thiits@localhost:3306/thi_db_1398"
-    SQLALCHEMY_DATABASE_URI = "postgresql://root:thi168168@XXX.XXX.XXX.XX:5432/postgres"
+    SQLALCHEMY_DATABASE_URI = "postgresql://root:thi168168@220.130.185.36:5432/postgres"
     SQLALCHEMY_ECHO = True
     SQLALCHEMY_ENGINE_OPTIONS = {
         "pool_pre_ping": True,

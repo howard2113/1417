@@ -3,7 +3,7 @@ from distutils.command.config import config
 from flask import Blueprint
 from flask import request
 import pandas as pd
-
+from api.utils.login_require import login_required
 from api.utils import responses as resp
 from api.utils.database import db
 from api.utils.responses import response_with
@@ -12,6 +12,7 @@ parking_routes = Blueprint("parking_routes", __name__)
 
 # 供需usage(id)
 @parking_routes.route('/sd_usage', methods=['POST'])
+@login_required
 def sd_usage():
 
   if(len(request.get_json()['id'])>1):
@@ -35,6 +36,7 @@ def sd_usage():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 供需usage(district)
 @parking_routes.route('/sd_usage_district', methods=['POST'])
+@login_required
 def sd_usage_district():
 
   if(len(request.get_json()['district'])>1):
@@ -58,6 +60,7 @@ def sd_usage_district():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 供需supply(id)
 @parking_routes.route('/sd_supply', methods=['POST'])
+@login_required
 def sd_supply():
 
   if(len(request.get_json()['id'])>1):
@@ -81,6 +84,7 @@ def sd_supply():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 供需supply(district)
 @parking_routes.route('/sd_supply_district', methods=['POST'])
+@login_required
 def sd_supply_district():
 
   if(len(request.get_json()['district'])>1):
@@ -104,6 +108,7 @@ def sd_supply_district():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 供需totalcar
 @parking_routes.route('/sd_totalcar', methods=['POST'])
+@login_required
 def sd_totalcar():
 
   if(len(request.get_json()['id'])>1):
@@ -131,6 +136,7 @@ group by car_type;", con=db.engine)
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 供需totalcar(district)
 @parking_routes.route('/sd_totalcar_district', methods=['POST'])
+@login_required
 def sd_totalcar_district():
 
   if(len(request.get_json()['district'])>1):
@@ -159,6 +165,7 @@ group by car_type;", con=db.engine)
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 #供需id
 @parking_routes.route('/sd_id', methods=['POST'])
+@login_required
 def sd_id():
   infos_df = pd.read_sql(f"select distinct area as id,district from sd_usage ;", con=db.engine)
   infos_dict = infos_df.to_dict('records')
@@ -166,6 +173,7 @@ def sd_id():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 #供需經緯
 @parking_routes.route('/sd_xy', methods=['POST'])
+@login_required
 def sd_xy():
   infos_df = pd.read_sql(f"select area as id,district,type,x as longitude,y as latitude from area_coordinate where type=0;", con=db.engine)
   infos_dict = infos_df.to_dict('records')
@@ -173,6 +181,7 @@ def sd_xy():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路邊id
 @parking_routes.route('/on_street_id', methods=['POST'])
+@login_required
 def on_street_id():
   config={'板橋區':1,"中和區":2,"新莊區":3,"三重區":4,"新店區":5,"土城區":6,"永和區":7,"蘆洲區":8,"汐止區":9,"樹林區":10,
   "淡水區":11,"三峽區":12,"鶯歌區":13,"林口區":14,"五股區":15,"泰山區":16,"瑞芳區":17,"八里區":18,"深坑區":19,"三芝區":20
@@ -184,6 +193,7 @@ def on_street_id():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路邊經緯
 @parking_routes.route('/on_street_xy', methods=['POST'])
+@login_required
 def on_street_xy():
   # latitude: 25.075495, longitude: 121.36758
   config={'板橋區':1,"中和區":2,"新莊區":3,"三重區":4,"新店區":5,"土城區":6,"永和區":7,"蘆洲區":8,"汐止區":9,"樹林區":10,
@@ -196,6 +206,7 @@ def on_street_xy():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路邊usage
 @parking_routes.route('/on_street_usage', methods=['POST'])
+@login_required
 def on_street_usage():
   start=request.get_json()['start']
   end=request.get_json()['end']
@@ -226,6 +237,7 @@ def on_street_usage():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路邊usage(days)
 @parking_routes.route('/on_street_usage_days', methods=['POST'])
+@login_required
 def on_street_usage_days():
   start=request.get_json()['start']
   end=request.get_json()['end']
@@ -255,6 +267,7 @@ def on_street_usage_days():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路邊supply
 @parking_routes.route('/on_street_supply', methods=['POST'])
+@login_required
 def on_street_supply():
   start=request.get_json()['start']
   end=request.get_json()['end']
@@ -284,6 +297,7 @@ def on_street_supply():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路邊totalcar
 @parking_routes.route('/on_street_totalcar', methods=['POST'])
+@login_required
 def on_street_totalcar():
   if(len(request.get_json()['id'])>1):
     id= tuple(request.get_json()['id'])
@@ -304,11 +318,12 @@ def on_street_totalcar():
     )as b ;", con=db.engine)
   infos_dict = infos_df.to_dict('records')
   for i in infos_dict:
-    if(math.isnan(i['totalcar'])):
+    if  pd.isnull(i['totalcar']):
       i['totalcar']='nan'
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路邊revenue
 @parking_routes.route('/on_street_revenue', methods=['POST'])
+@login_required
 def on_street_revenue():
   holidays=','.join(request.get_json()['holidays'])
   start=request.get_json()['start']
@@ -336,6 +351,7 @@ def on_street_revenue():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 綜合usage
 @parking_routes.route('/multi_usage', methods=['POST'])
+@login_required
 def multi_usage():
   holidays=','.join(request.get_json()['holidays'])
   hour_arr=request.get_json()['hour']
@@ -366,6 +382,7 @@ def multi_usage():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 綜合supply
 @parking_routes.route('/multi_supply', methods=['POST'])
+@login_required
 def multi_supply():
   holidays=','.join(request.get_json()['holidays'])
   hour_arr=request.get_json()['hour']
@@ -396,6 +413,7 @@ def multi_supply():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 綜合totalcar
 @parking_routes.route('/multi_totalcar', methods=['POST'])
+@login_required
 def multi_totalcar():
   holidays=','.join(request.get_json()['holidays'])
   hour_arr=request.get_json()['hour']
@@ -412,10 +430,10 @@ def multi_totalcar():
     district=str(tuple(request.get_json()['district']))
     district=district.replace(",", "")
 
-  infos_df=pd.read_sql(f"select car_type, sum({hour})/{len(request.get_json()['hour'])} as totalcar from multi_total_totalcar \
+  infos_df=pd.read_sql(f"select a.car_type,sum(a.totalcar)as totalcar from(select district,car_type, avg({hour})/{len(request.get_json()['hour'])} as totalcar from multi_total_totalcar \
     left join holidays h on date(date_col) = date(infotime) \
     where  district in {district}  and infotime between '{start}' and '{end}' and car_type in (2,3) \
-    and h.is_workday in ({holidays})   group by car_type \
+    and h.is_workday in ({holidays})   group by district,car_type )as a group by a.car_type \
     union all \
     select car_type, sum({hour})/{len(request.get_json()['hour'])} as totalcar from sd_totalcar \
     where  district in  {district}  and  car_type=5  group by car_type", con=db.engine)
@@ -426,6 +444,7 @@ def multi_totalcar():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 綜合totalcar(地圖框選)
 @parking_routes.route('/multi_totalcar_map', methods=['POST'])
+@login_required
 def multi_totalcar_map():
   ids = list(set(request.get_json()['id']))
   hour_arr=request.get_json()['hour']
@@ -507,6 +526,7 @@ def multi_totalcar_map():
   return response_with(resp.SUCCESS_200, value={'data':infos_dict})
 # 綜合revenue
 @parking_routes.route('/multi_revenue', methods=['POST'])
+@login_required
 def multi_revenue():
   holidays=','.join(request.get_json()['holidays'])
   config={'板橋區':1,"中和區":2,"新莊區":3,"三重區":4,"新店區":5,"土城區":6,"永和區":7,"蘆洲區":8,"汐止區":9,"樹林區":10,
@@ -525,34 +545,31 @@ def multi_revenue():
   print(inv_dict[5])
   for i in request.get_json()['district']:
     district_array.append(inv_dict[int(i)])
-  if(len(district_array)>1):
-    district= tuple(district_array)
-  else:
-    district=str(tuple(district_array))
-    district=district.replace(",", "")
+  params={}
+  params['district']=tuple(district_array)
   #汽車部分 日:路邊 月或年:路邊+路外
   if(is_day=="true"):
-    infos_df=pd.read_sql(f"select '0' as car_type, sum(amount)as revenue \
+    sql=f"select '0' as car_type, sum(amount)as revenue \
 from( \
     select distinct(a.officialid),a.infodate ,a.name_type,a.bill_number,a.park_times,a.amount,a.charging_hrs ,a.cnt,b.district \
     from on_street_dynamic_days  as a \
     inner join on_street_static as b on a.officialid  = b.road_id \
     )as c \
     left join holidays h on date(date_col) = date(c.infodate)  \
-where  district  in {district} and  name_type in (3,4,5) and c.infodate between '{start}' and '{end}' \
+where  district  in %(district)s and  name_type in (3,4,5) and c.infodate between '{start}' and '{end}' \
 and h.is_workday in ({holidays})   \
 union All \
 select '1' as car_type, sum(amount)as revenue from on_street_dynamic_days as a \
 left join holidays h on date(date_col) = date(infodate)  left join on_street_static oss on officialid  = road_id \
-where  district  in {district} and  name_type in (1) and a.infodate between '{start}' and '{end}' \
-and h.is_workday in ({holidays})", con=db.engine)
+where  district  in %(district)s and  name_type in (1) and a.infodate between '{start}' and '{end}' \
+and h.is_workday in ({holidays})"
   else:
-    infos_df=pd.read_sql(f"select '0'as car_type, sum(revenue)as revenue from( \
+    sql=f"select '0'as car_type, sum(revenue)as revenue from( \
 select '0' as car_type,sum(total_revenue)as revenue \
 from( \
 select distinct  parking_id,parking_register,total_revenue, TO_TIMESTAMP(year+1911||'-'||month,'YYYY-MM') AS dateCol ,oss.area \
 from off_street_register_to_id osrti left join off_street_static oss on parking_id =id \
-where area in{district} \
+where area in %(district)s \
 )as a  \
 where a.dateCol between '{start}' and '{end}' \
 union all \
@@ -563,13 +580,14 @@ from( \
     inner join on_street_static as b on a.officialid  = b.road_id \
     )as c \
     left join holidays h on date(date_col) = date(c.infodate)  \
-where  district  in {district} and  name_type in (3,4,5) and c.infodate between '{start}' and '{end}' \
+where  district  in %(district)s and  name_type in (3,4,5) and c.infodate between '{start}' and '{end}' \
 and h.is_workday in ({holidays})  ) as x \
 union All \
 select '1' as car_type, sum(amount)as revenue from on_street_dynamic_days as a \
 left join holidays h on date(date_col) = date(infodate)  left join on_street_static oss on officialid  = road_id \
-where  district  in {district} and  name_type in (1) and a.infodate between '{start}' and '{end}' \
-and h.is_workday in ({holidays})", con=db.engine)
+where  district  in %(district)s and  name_type in (1) and a.infodate between '{start}' and '{end}' \
+and h.is_workday in ({holidays})"
+  infos_df=pd.read_sql(sql, con=db.engine, params=params)
   infos_dict = infos_df.to_dict('records')
   for i in infos_dict:
     if(i['revenue']is None or math.isnan(i['revenue'])):
@@ -577,6 +595,7 @@ and h.is_workday in ({holidays})", con=db.engine)
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 綜合使用率需供率(地圖框選)
 @parking_routes.route('/multi_usage_supply_map', methods=['POST'])
+@login_required
 def multi_usage_supply_map():
   start=request.get_json()['start']
   end=request.get_json()['end']
@@ -595,9 +614,9 @@ def multi_usage_supply_map():
       else:
           on_ids.append(i)
   params ={}
-  params['area_ids'] = tuple(area_ids) if len(area_ids) > 0 else ("('')")
-  params['off_ids'] = tuple(off_ids) if len(off_ids) > 0 else ("('')")
-  params['on_ids'] = tuple(on_ids) if len(on_ids) > 0 else ("('')")
+  params['area_ids'] = tuple(area_ids) if len(area_ids) > 0 else ('',)
+  params['off_ids'] = tuple(off_ids) if len(off_ids) > 0 else ('',)
+  params['on_ids'] = tuple(on_ids) if len(on_ids) > 0 else ('',)
   # 供需用小時(hr_8...)
   hour_arr=request.get_json()['hour']
   hour_hr=[]
@@ -612,24 +631,24 @@ def multi_usage_supply_map():
     id=str(tuple(request.get_json()['id']))
     id=id.replace(",", "")
 
-  infos_df = pd.read_sql(f"with \
+  sql=f"with \
 supply_table as( \
 select sum(supply)as total_supply ,car_type from ( \
 select sum({hour_hr})as supply ,car_type from multi_sd_supply \
-where area in {params['area_ids']} and car_type in(2,3,5) group by car_type \
+where area in %(area_ids)s and car_type in(2,3,5) group by car_type \
 union all  \
 select sum(cnt)as supply,'2' as car_type  from on_street_dynamic_hour_vehicle osdhv  \
 left join holidays h on date(date_col) = date(infotime)   \
-where officialid in {params['on_ids']} and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
+where officialid in %(on_ids)s and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
 and extract(hour from  infotime) in ({hour}) \
 union all  \
 select sum(cnt)as supply,'3' as car_type  from on_street_dynamic_hour_special_vehicle osdhsv  \
 left join holidays h on date(date_col) = date(infotime)   \
-where officialid in {params['on_ids']} and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
+where officialid in %(on_ids)s and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
 and extract(hour from  infotime) in ({hour}) \
 union all  \
 select sum(totalcar)* {len(request.get_json()['hour'])} as supply,'2' as car_type from Off_street_static  \
-where id in {params['off_ids']}  \
+where id in %(off_ids)s  \
 )as a group by a.car_type \
 ), \
 demand_table as( \
@@ -639,27 +658,29 @@ where area in ('02012001') and car_type in(2,3,5) group by car_type \
 union all  \
 select sum(totalcar)as demand,'2' as car_type  from on_street_dynamic_hour_vehicle osdhv  \
 left join holidays h on date(date_col) = date(infotime)   \
-where officialid in {params['on_ids']} and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
+where officialid in %(on_ids)s and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
 and extract(hour from  infotime) in ({hour}) \
 union all  \
 select sum(totalcar)as demand,'3' as car_type  from on_street_dynamic_hour_special_vehicle osdhsv  \
 left join holidays h on date(date_col) = date(infotime)   \
-where officialid in {params['on_ids']} and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
+where officialid in %(on_ids)s and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
 and extract(hour from  infotime) in ({hour}) \
 union all  \
 select sum(totalcar)as demand,'2' as car_type from off_street_dynamic_hours osdh  \
 left join holidays h on date(date_col) = date(infotime)   \
-where id in {params['off_ids']} and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
+where id in %(off_ids)s and infotime between '{start}' and '{end}'  and h.is_workday in ({holidays}) \
 and extract(hour from  infotime) in ({hour}) \
 )as a group by a.car_type \
 ) \
 select total_supply, total_demand, supply_table.car_type  \
-from supply_table LEFT join demand_table on supply_table.car_type = demand_table.car_type ;", con=db.engine)
+from supply_table LEFT join demand_table on supply_table.car_type = demand_table.car_type ;"
+  infos_df=pd.read_sql(sql, con=db.engine, params=params)
   infos_dict = infos_df.to_dict('records')
 
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 綜合revenue(地圖框選)
 @parking_routes.route('/multi_revenue_map', methods=['POST'])
+@login_required
 def multi_revenue_map():
   ids = list(set(request.get_json()['id']))
   start=request.get_json()['start']
@@ -720,6 +741,7 @@ def multi_revenue_map():
   return response_with(resp.SUCCESS_200, value={'data':infos_dict})
 # 路外
 @parking_routes.route('/off_street', methods=['POST'])
+@login_required
 def off_street():
   start=request.get_json()['start']
   end=request.get_json()['end']
@@ -742,6 +764,7 @@ and h.is_workday in ({holidays}) and extract(hour from  infotime) in ({hour})  ;
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路外合法停車格位數(席)
 @parking_routes.route('/off_street_totalcar', methods=['POST'])
+@login_required
 def off_street_totalcar():
   if(len(request.get_json()['id'])>1):
     id= tuple(request.get_json()['id'])
@@ -757,6 +780,7 @@ def off_street_totalcar():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路外經緯
 @parking_routes.route('/off_street_xy', methods=['POST'])
+@login_required
 def off_street_xy():
 
   config={'板橋區':1,"中和區":2,"新莊區":3,"三重區":4,"新店區":5,"土城區":6,"永和區":7,"蘆洲區":8,"汐止區":9,"樹林區":10,
@@ -769,6 +793,7 @@ def off_street_xy():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路外 收費金額估算
 @parking_routes.route('/off_street_revenue', methods=['POST'])
+@login_required
 def off_street_revenue():
   start=request.get_json()['start']
   end=request.get_json()['end']
@@ -788,6 +813,7 @@ where a.dateCol between '{start}'and'{end}' and parking_id in  {id};", con=db.en
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 # 路外ID
 @parking_routes.route('/off_street_id', methods=['POST'])
+@login_required
 def off_street_id():
 
   infos_df = pd.read_sql(f"select id,area as district,name from off_street_static ;", con=db.engine)
@@ -797,6 +823,17 @@ def off_street_id():
   ,"金山區":21,"萬里區":22,"貢寮區":23,"石門區":24,"雙溪區":25,"石碇區":26,"坪林區":27,"烏來區":28,"平溪區":29}
   for i in range (len(infos_dict)):
     infos_dict[i]['district']=config[infos_dict[i]['district']]
+
+
+
+  return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
+#停車場資訊
+@parking_routes.route('/off_street_parking_page', methods=['POST'])
+@login_required
+def off_street_parking_page():
+
+  infos_df = pd.read_sql(f"select * from off_street_parkings_page ;", con=db.engine)
+  infos_dict = infos_df.to_dict('records')
 
 
 

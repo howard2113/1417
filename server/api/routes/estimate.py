@@ -2,7 +2,7 @@ from distutils.command.config import config
 from flask import Blueprint
 from flask import request
 import pandas as pd
-
+from api.utils.login_require import login_required
 from api.utils import responses as resp
 from api.utils.database import db
 from api.utils.responses import response_with
@@ -11,6 +11,7 @@ estimate_routes = Blueprint("estimate_routes", __name__)
 
 #小型車持有率
 @estimate_routes.route('/owner_rate', methods=['POST'])
+@login_required
 def owner_rate():
 
   infos_df = pd.read_sql(f"SELECT * FROM public.automobile_ownership;", con=db.engine)
@@ -20,6 +21,7 @@ def owner_rate():
 
 #人口密度
 @estimate_routes.route('/population_density', methods=['POST'])
+@login_required
 def population_density():
 
   infos_df = pd.read_sql(f"SELECT * FROM public.population_density;", con=db.engine)
@@ -28,16 +30,16 @@ def population_density():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 #戶籍人口數
 @estimate_routes.route('/population', methods=['POST'])
+@login_required
 def population():
 
-  infos_df = pd.read_sql(f"SELECT count(*),geohash,point_s ,point_e ,point_w ,point_n  FROM public.population \
-      where geohash <> 'w8h2n24' \
-      group by geohash ,point_s ,point_e ,point_w ,point_n;", con=db.engine)
+  infos_df = pd.read_sql(f"SELECT * FROM public.population_result ;", con=db.engine)
   infos_dict = infos_df.to_dict('records')
 
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 #停車場數
 @estimate_routes.route('/parkingLot', methods=['POST'])
+@login_required
 def parkingLot():
 
   infos_df = pd.read_sql(f"SELECT * FROM public.parkingLot ;", con=db.engine)
@@ -46,6 +48,7 @@ def parkingLot():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 #路邊停車格位數
 @estimate_routes.route('/on_street', methods=['POST'])
+@login_required
 def on_street():
 
   infos_df = pd.read_sql(f"select grid_id || '-' || 'on_street' as id,lat as latitude,lon as longitude FROM public.on_street_static ;", con=db.engine)
@@ -54,14 +57,16 @@ def on_street():
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
 #車站數
 @estimate_routes.route('/station', methods=['POST'])
+@login_required
 def station():
 
   infos_df = pd.read_sql(f"SELECT * FROM public.station ;", con=db.engine)
   infos_dict = infos_df.to_dict('records')
 
   return response_with(resp.SUCCESS_200, value={"data": infos_dict}, )
-#權利金估算
+#使用率估算
 @estimate_routes.route('/estimate', methods=['POST'])
+@login_required
 def estimate():
   X1=request.get_json()['X1']
   X2=request.get_json()['X2']
@@ -88,3 +93,77 @@ def estimate():
 
   return response_with(resp.SUCCESS_200, value={"data": infos_df}, )
 
+#使用率估算(高)
+@estimate_routes.route('/estimate_high', methods=['POST'])
+@login_required
+def estimate_high():
+  X1=request.get_json()['X1']
+  X2=request.get_json()['X2']
+  X3=request.get_json()['X3']
+  X4=request.get_json()['X4']
+  X5=request.get_json()['X5']
+  X6=request.get_json()['X6']
+  X7=request.get_json()['X7']
+  X8=request.get_json()['X8']
+  X9=request.get_json()['X9']
+  X10=request.get_json()['X10']
+  X11=request.get_json()['X11']
+  X12=request.get_json()['X12']
+  X13=request.get_json()['X13']
+  X14=request.get_json()['X14']
+  X15=request.get_json()['X15']
+  X16=request.get_json()['X16']
+  X17=request.get_json()['X17']
+
+  infos_df=66.028+0.001*X2+0.0002*X3-1.048*X4-0.031*X6+6.518*X8+2.872*X9+4.479*X10-5.038*X11-0.492*X12-1.601*X13+12.975*X14-10.773*X15-8.219*X16-12.127*X17
+
+  return response_with(resp.SUCCESS_200, value={"data": infos_df}, )
+#使用率估算(中)
+@estimate_routes.route('/estimate_mid', methods=['POST'])
+@login_required
+def estimate_mid():
+  X1=request.get_json()['X1']
+  X2=request.get_json()['X2']
+  X3=request.get_json()['X3']
+  X4=request.get_json()['X4']
+  X5=request.get_json()['X5']
+  X6=request.get_json()['X6']
+  X7=request.get_json()['X7']
+  X8=request.get_json()['X8']
+  X9=request.get_json()['X9']
+  X10=request.get_json()['X10']
+  X11=request.get_json()['X11']
+  X12=request.get_json()['X12']
+  X13=request.get_json()['X13']
+  X14=request.get_json()['X14']
+  X15=request.get_json()['X15']
+  X16=request.get_json()['X16']
+  X17=request.get_json()['X17']
+
+  infos_df=55.210+0.001*X2-3.045*X4+4.316*X5-0.022*X6+17.808*X8+8.051*X10+7.532*X11+10.544*X13-25.450*X14-10.212*X16-25.452*X17
+  return response_with(resp.SUCCESS_200, value={"data": infos_df}, )
+#使用率估算(低)
+@estimate_routes.route('/estimate_low', methods=['POST'])
+@login_required
+def estimate_low():
+  X1=request.get_json()['X1']
+  X2=request.get_json()['X2']
+  X3=request.get_json()['X3']
+  X4=request.get_json()['X4']
+  X5=request.get_json()['X5']
+  X6=request.get_json()['X6']
+  X7=request.get_json()['X7']
+  X8=request.get_json()['X8']
+  X9=request.get_json()['X9']
+  X10=request.get_json()['X10']
+  X11=request.get_json()['X11']
+  X12=request.get_json()['X12']
+  X13=request.get_json()['X13']
+  X14=request.get_json()['X14']
+  X15=request.get_json()['X15']
+  X16=request.get_json()['X16']
+  X17=request.get_json()['X17']
+
+  infos_df=39.618+0.004*X1+0.0001*X2+0.0003*X3-2.880*X4-0.015*X6+0.539*X8+0.269*X9-3.893*X10-7.467*X11+17.444*X12+16.127*X13-1.723*X16-10.704*X17
+
+  return response_with(resp.SUCCESS_200, value={"data": infos_df}, )
